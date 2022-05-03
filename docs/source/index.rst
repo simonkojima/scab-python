@@ -10,6 +10,7 @@ documentation of pyscab
    :maxdepth: 2
    :caption: Contents:
 
+	test/*	
 
 Indices and tables
 ==================
