@@ -1,3 +1,0 @@
-===
-result of latency test
-===

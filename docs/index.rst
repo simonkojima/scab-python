@@ -9,8 +9,9 @@ documentation of pyscab
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
-	test/*	
+   :numbered:
+   
+   info/latency_test
 
 Indices and tables
 ==================
