@@ -1,9 +1,9 @@
 import time
 
-def get_required_time(plans, data, frame_rate):
+def get_required_time(plans, data):
     end_times = list()
     for plan in plans:
-        end_time = data.get_nframes_by_id(plan[1])/frame_rate
+        end_time = data.get_length_by_id(plan[1])
         end_time += plan[0]
         end_times.append(end_time)
     return max(end_times)
@@ -16,7 +16,7 @@ class StimulationController(object):
         self.running = False
         self.marker_send = marker_send
 
-    def play(self, plans, data, time_termination = 'auto'):
+    def play(self, plans, data, time_termination = 'auto', pause=0.5):
 
         # initialize
         del_idxs = list()
@@ -25,7 +25,7 @@ class StimulationController(object):
             #        to avoid verbosed conditional branch in loop
             time_termination = float('inf')
         elif time_termination.lower() == 'auto':
-            time_termination = get_required_time(plans, data, self.ahc.frame_rate)
+            time_termination = get_required_time(plans, data)
 
         self.running = True
         self.ahc.open()
@@ -49,5 +49,5 @@ class StimulationController(object):
             if now > time_termination:
                 self.running = False
 
-        #time.sleep(1)
+        time.sleep(pause)
         self.ahc.close()

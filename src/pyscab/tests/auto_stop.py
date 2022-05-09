@@ -3,6 +3,7 @@
 import sys
 import os
 import pathlib
+import time
 
 path_tests = pathlib.Path(__file__).parent.resolve()
 sys.path.append(str(path_tests)[0:-5])
@@ -27,7 +28,7 @@ afh.load(2, file_dirs[0], volume = 1)
 # generate sine wave
 #
 
-sine = utils.generate_pcm(number_of_channels=2, frequency=440, duration=5, format="INT16", volume=0.7, window=None)
+sine = utils.generate_pcm(number_of_channels=2, frequency=440, duration=5, format="INT16", volume=0.7, window='linear')
 afh.add_pcm(3, sine)
 
 #------------------------------------------------

@@ -3,4 +3,4 @@ from .DataHandler import *
 from .StimulationController import *
 from .utils import *
 
-__version__ = '0.0.3'
+__version__ = '0.0.5'

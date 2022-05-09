@@ -4,13 +4,15 @@ import os
 import wave
 
 class DataHandler(object):
-    def __init__(self, verbose=True):
+    def __init__(self, frame_rate = 44100, verbose=True):
         self.pcm_data = list()
         self.n_ch = list()
         self.n_frames = list()
         self.path = list()
         self.id = list()
         self.volume = list()
+        self.frame_rate = frame_rate
+        self.sample_width = list()
         self.verbose = verbose
 
     def load(self, id, path, volume=1.0):
@@ -55,7 +57,7 @@ class DataHandler(object):
         self.path.append(path)
         self.pcm_data.append(data)
         self.n_ch.append(n_ch)
-        #self.sample_width.append(sw)
+        self.sample_width.append(sw)
         self.n_frames.append(nf)
         self.volume.append(volume)
     
@@ -72,6 +74,9 @@ class DataHandler(object):
 
     def get_nframes_by_id(self, id):
         return numpy.shape(self.get_data_by_id(id))[0]
+
+    def get_length_by_id(self, id):
+        return self.get_nframes_by_id(id)/self.frame_rate
 
     def get_data_by_id(self, id):
         idx = self._id2idx(id)
