@@ -69,7 +69,9 @@ class DataHandler(object):
         self.pcm_data.append(data)
         self.n_frames.append(data.shape[0])
         self.n_ch.append(data.shape[1])
-        
+
+    def get_nframes_by_id(self, id):
+        return numpy.shape(self.get_data_by_id(id))[0]
 
     def get_data_by_id(self, id):
         idx = self._id2idx(id)

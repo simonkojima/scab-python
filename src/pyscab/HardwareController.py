@@ -62,8 +62,8 @@ class AudioInterface(object):
             else:
                 raise ValueError("Unknown Operating System")
         else:
-            self.device_name = device_name
-        #self.volume = volume
+            self.device_name = device_name 
+
         self.format = format
         if format.upper() == "INT16":
             self.format_pyaudio = pyaudio.paInt16
@@ -75,7 +75,6 @@ class AudioInterface(object):
             raise ValueError("Unknown Format : " + self.format + ". It can only take INT16 or UINT8.")
         self.frame_rate = frame_rate
         self.frames_per_buffer = frames_per_buffer
-        #self.use_headphones = use_headphones
 
         self.pya = pya = pyaudio.PyAudio()
         hardware_information = HardwareInformation(pya)
