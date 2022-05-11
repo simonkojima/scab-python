@@ -40,7 +40,7 @@ class DataHandler(object):
             start = time.time()
             print("start loading : " + f_name)
 
-        data = numpy.zeros((nf, n_ch))
+        data = numpy.zeros((nf, n_ch)).astype(dtype)
 
         data_wav = wf.readframes(nf)
         data_wav = numpy.frombuffer(data_wav, dtype=dtype)
