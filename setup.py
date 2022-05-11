@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="pyscab",
-    version="0.0.6",
+    version="0.0.7",
     author="Simon Kojima",
     author_email="simon.kojima@outlook.com",
     description="python implementation of scab (stimulation controller for auditory brain-computer interface)",

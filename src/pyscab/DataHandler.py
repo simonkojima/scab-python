@@ -14,6 +14,7 @@ class DataHandler(object):
         self.frame_rate = frame_rate
         self.sample_width = list()
         self.verbose = verbose
+        self.dtype = numpy.dtype("int16")
 
     def load(self, id, path, volume=1.0):
         if self._is_exist_id(id) is False:
@@ -28,9 +29,9 @@ class DataHandler(object):
 
         sw = wf.getsampwidth()
         if sw == 1:
-            dtype = numpy.dtype("uint8")
+            self.dtype = dtype = numpy.dtype("uint8")
         elif sw == 2:
-            dtype = numpy.dtype("int16")
+            self.dtype = dtype = numpy.dtype("int16")
         else:
             raise ValueError("file must be Int16 or UInt8 PCM wave format")
 
@@ -60,6 +61,31 @@ class DataHandler(object):
         self.sample_width.append(sw)
         self.n_frames.append(nf)
         self.volume.append(volume)
+
+    def apply_window(self, id, t_raise_fall):
+
+        n_frames = self.get_nframes_by_id(id)
+        fs = self.frame_rate
+
+        raise_ = numpy.arange(0, int(t_raise_fall*fs))
+        fall_ = numpy.arange(int(t_raise_fall*fs), 0, -1)
+
+        raise_ = raise_ / max(raise_)
+        fall_ = fall_ / max(fall_)
+
+        flat = numpy.ones((n_frames - numpy.size(raise_) - numpy.size(raise_)))
+
+        win_filter = numpy.concatenate([raise_, flat, fall_])
+
+        idx = self._id2idx(id)
+        n_ch = self.n_ch[idx]
+
+        win = numpy.zeros((numpy.size(win_filter), n_ch))
+        for m in range(n_ch):
+            win[:, m] = win_filter
+
+        self.pcm_data[idx] = self.pcm_data[idx]*win
+        self.pcm_data[idx] = self.pcm_data[idx].astype(self.dtype)
     
     def add_pcm(self, id, data):
         if self._is_exist_id(id) is False:
@@ -90,6 +116,7 @@ class DataHandler(object):
         idx = numpy.where(numpy.array(self.id) == id)
         if len(idx[0]) == 0:
             return None
+            #raise ValueError("id does not exist.")
         else:
             return int(idx[0])
 
