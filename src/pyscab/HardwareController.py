@@ -3,6 +3,7 @@ import numpy
 
 class Share(object):
     data = list()
+    data_finished = list()
     format = None
     time = None
     n_ch = None
@@ -11,16 +12,19 @@ callback_params = Share()
 
 def callback(in_data, frame_count, time_info, status, p=callback_params):
     data = numpy.zeros((frame_count, p.n_ch), dtype=p.format)
-    for idx_audio, audio in enumerate(p.data):
-        if audio.is_finished() is not True:
-            chunk = audio.read_chunk()
-        else:
+    for idx, is_finished in enumerate(p.data_finished):
+    #for idx_audio, audio in enumerate(p.data):
+    #for audio in p.data:
+        if is_finished is False:
+            chunk = p.data[idx].read_chunk()
+            for idx_ch, ch in enumerate(p.data[idx].get_ch()):
+                data[:, ch-1] += chunk[:, idx_ch]
+        #else:
+        #    p.data_finished[idx] = True
             # if all audio chunks were loaded, delete the instance
-            del p.data[idx_audio]
-            break
-
-        for idx_ch, ch in enumerate(audio.get_ch()):
-            data[:, ch-1] += chunk[:, idx_ch]
+            #
+            # deleted this in ver. 0.0.6, since doing this will take time and makes problem with presenting short audio with fast SOA.
+            #del p.data[idx_audio]
     p.time = time_info
     return (numpy.ravel(data, order='C'), pyaudio.paContinue)
 
@@ -49,7 +53,6 @@ class AudioInterface(object):
     def __init__(self,
                  device_name=None,
                  n_ch = 2,
-                 #volume=DEFAULT_VOLUME,
                  format="INT16",
                  frame_rate=44100,
                  frames_per_buffer=512,):
@@ -85,6 +88,8 @@ class AudioInterface(object):
         self.device_idx = device['index']
         self.num_channels = n_ch
 
+        self.n_ReadAudioChunk_obj = 0
+
 
     def open(self):
         callback_params.n_ch = self.num_channels
@@ -98,7 +103,9 @@ class AudioInterface(object):
                                     stream_callback=callback)
 
     def play(self, data, ch):
-        callback_params.data.append(ReadAudioChunk(data, self.frames_per_buffer, ch, format = self.format_numpy))
+        callback_params.data.append(ReadAudioChunk(data, self.frames_per_buffer, ch, format = self.format_numpy, idx_obj = self.n_ReadAudioChunk_obj))
+        callback_params.data_finished.append(False)
+        self.n_ReadAudioChunk_obj += 1 # should be add 1 after executing appending ReadAudioChunk obj.
 
     def get_time_info(self):
         return callback_params.time
@@ -111,16 +118,17 @@ class AudioInterface(object):
         self.pya.terminate()
 
 class ReadAudioChunk(object):
-    def __init__(self, data, chunk_size, ch, volume=1.0, format = numpy.dtype("int16")):
+    def __init__(self, data, chunk_size, ch, volume=1.0, format = numpy.dtype("int16"), idx_obj = None):
         self.data = data.astype(format)
-        #self.data = data
         self.n_ch_data = data.shape[1] # n_ch of data
         self.n_frames = data.shape[0]
         self.current_idx = 0
         self.chunk_size = chunk_size
         self.ch = ch # ch num to be stimuli presented
         self.format = format
+        #self.remained_frames = self.n_frames
         self.finished = False
+        self.idx_obj = idx_obj
 
         # if mono audio will be played from multiple channel,
         # concatenate it to multiple channel matrix
@@ -132,15 +140,27 @@ class ReadAudioChunk(object):
     def read_chunk(self):
         start = self.current_idx*self.chunk_size
         end = (self.current_idx*self.chunk_size)+self.chunk_size
-        if end > self.n_frames:
+
+        if end >= (self.n_frames-1):
+            data = numpy.zeros((self.chunk_size, self.n_ch_data), dtype=self.format)
+            data[0:(self.n_frames-start-1),:] = self.data[start:-1,:]
+            """
+            =====================
+            This is old method.
+            
+            deleted in ver 0.0.6 since it is slow.
+            =====================
             # padding zero to last block 
             data = self.data[start:-1,:]
             n_padding = self.chunk_size - data.shape[0]
             data = numpy.vstack((data, numpy.zeros((n_padding, self.n_ch_data), dtype=self.format)))
             #data = numpy.vstack((data, numpy.zeros((n_padding, self.n_ch_data))))
-            self.finished = True
+            """
+            #self.finished = True
+            callback_params.data_finished[self.idx_obj] = True
         else:
             data = self.data[start:end,:]
+            #self.remained_frames -= self.chunk_size
         self.current_idx += 1
         return data
 
