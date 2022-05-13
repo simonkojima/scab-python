@@ -48,7 +48,7 @@ class StimulationController(object):
                     self.ahc.play(data.get_data_by_id(plan[1]),plan[2])
                     self.marker_send(val=plan[3])
                     del_idxs.append(int(idx))
-                    logging.debug("Playing, id:%s, path:%s",str(plan[1]),data.get_path_by_id(plan[1]))
+                    logging.debug("Playing, id:%s, marker:%s, path:%s",str(plan[1]),str(plan[2]),data.get_path_by_id(plan[1]))
                 for del_idx in del_idxs:
                     del plans[del_idx]
                 del_idxs=list()
