@@ -111,11 +111,11 @@ class DataHandler(object):
         idx = self._id2idx(id)
         return self.pcm_data[idx]
 
-    def get_n_ch_by_id(self):
+    def get_n_ch_by_id(self, id):
         idx = self._id2idx(id)
         return self.n_ch[idx]
 
-    def get_path_by_id(self):
+    def get_path_by_id(self,id):
         idx = self._id2idx(id)
         return self.paths[idx]
 
