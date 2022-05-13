@@ -1,14 +1,19 @@
 import pyaudio
 import numpy
+import logging
 
-class Share(object):
-    data = list()
-    data_finished = list()
-    format = None
-    time = None
-    n_ch = None
+class CallbackParams(object):
+    def __init__(self):
+        self.init()
+    
+    def init(self):
+        self.data = list()
+        self.data_finished = list()
+        self.format = None
+        self.time = None
+        self.n_ch = None
 
-callback_params = Share()
+callback_params = CallbackParams()
 
 def callback(in_data, frame_count, time_info, status, p=callback_params):
     data = numpy.zeros((frame_count, p.n_ch), dtype=p.format)
@@ -83,7 +88,8 @@ class AudioInterface(object):
         hardware_information = HardwareInformation(pya)
 
         available_devices = hardware_information.devices
-        print(self.device_name)
+        #print(self.device_name)
+        logging.debug("Audio Device %s was selected.", self.device_name)
         device = available_devices[self.device_name]
         self.device_idx = device['index']
         self.num_channels = n_ch
@@ -92,6 +98,7 @@ class AudioInterface(object):
 
 
     def open(self):
+        callback_params.init()
         callback_params.n_ch = self.num_channels
         callback_params.format = self.format_numpy
         self.stream = self.pya.open(format=self.format_pyaudio,

@@ -2,13 +2,14 @@ import numpy
 import time
 import os
 import wave
+import logging
 
 class DataHandler(object):
-    def __init__(self, frame_rate = 44100, verbose=True):
+    def __init__(self, frame_rate = 44100, verbose=False):
         self.pcm_data = list()
         self.n_ch = list()
         self.n_frames = list()
-        self.path = list()
+        self.paths = list()
         self.id = list()
         self.volume = list()
         self.frame_rate = frame_rate
@@ -41,6 +42,7 @@ class DataHandler(object):
             start = time.time()
             print("start loading : " + f_name)
 
+        logging.debug("start loading : %s", path)
         data = numpy.zeros((nf, n_ch)).astype(dtype)
 
         data_wav = wf.readframes(nf)
@@ -55,7 +57,7 @@ class DataHandler(object):
             end = time.time()
             print("elapsed time : " + str(end-start))
 
-        self.path.append(path)
+        self.paths.append(path)
         self.pcm_data.append(data)
         self.n_ch.append(n_ch)
         self.sample_width.append(sw)
@@ -93,7 +95,7 @@ class DataHandler(object):
         else:
             raise ValueError("Passed id " + str(id) + " is dumplicated.")
 
-        self.path.append("PCM")
+        self.paths.append("PCM")
         self.pcm_data.append(data)
         self.n_frames.append(data.shape[0])
         self.n_ch.append(data.shape[1])
@@ -102,6 +104,7 @@ class DataHandler(object):
         return numpy.shape(self.get_data_by_id(id))[0]
 
     def get_length_by_id(self, id):
+        # return type in second.
         return self.get_nframes_by_id(id)/self.frame_rate
 
     def get_data_by_id(self, id):
@@ -111,6 +114,10 @@ class DataHandler(object):
     def get_n_ch_by_id(self):
         idx = self._id2idx(id)
         return self.n_ch[idx]
+
+    def get_path_by_id(self):
+        idx = self._id2idx(id)
+        return self.paths[idx]
 
     def _id2idx(self, id):
         idx = numpy.where(numpy.array(self.id) == id)

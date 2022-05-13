@@ -1,4 +1,5 @@
 import time
+import logging
 
 def get_required_time(plans, data):
     end_times = list()
@@ -15,8 +16,10 @@ class StimulationController(object):
         self.time_tick = time_tick
         self.running = False
         self.marker_send = marker_send
+        logging.debug("time_tick for Stimulation Controller was set to %s", str(self.time_tick))
 
     def play(self, plans, data, time_termination = 'auto', pause=0.5):
+        # pause : pause after playing all sounds in plans.
 
         # initialize
         del_idxs = list()
@@ -26,9 +29,12 @@ class StimulationController(object):
             time_termination = float('inf')
         elif time_termination.lower() == 'auto':
             time_termination = get_required_time(plans, data)
+        
+        logging.debug("session time was set to %s." ,str(time_termination))
 
         self.running = True
         self.ahc.open()
+        logging.debug("Audio Hardware Controller Opening.")
 
         # requires time to be opened. with out this line, time_info won't be get
         # TO DO : get the state of instance from pyaudio and wait until it's opened instead of waiting with sleep
@@ -42,6 +48,7 @@ class StimulationController(object):
                     self.ahc.play(data.get_data_by_id(plan[1]),plan[2])
                     self.marker_send(val=plan[3])
                     del_idxs.append(int(idx))
+                    logging.debug("Playing, id:%s, path:%s",str(plan[1]),data.get_path_by_id(plan[1]))
                 for del_idx in del_idxs:
                     del plans[del_idx]
                 del_idxs=list()
@@ -51,3 +58,4 @@ class StimulationController(object):
 
         time.sleep(pause)
         self.ahc.close()
+        logging.debug("Audio Hardware Controller Closing.")
