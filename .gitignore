@@ -5,3 +5,4 @@ __pychace__
 _build
 _static
 _templates
+*.pyc
