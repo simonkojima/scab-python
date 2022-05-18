@@ -99,6 +99,7 @@ class AudioInterface(object):
 
     def open(self):
         callback_params.init()
+        self.n_ReadAudioChunk_obj = 0
         callback_params.n_ch = self.num_channels
         callback_params.format = self.format_numpy
         self.stream = self.pya.open(format=self.format_pyaudio,

@@ -95,6 +95,10 @@ class DataHandler(object):
         else:
             raise ValueError("Passed id " + str(id) + " is dumplicated.")
 
+        if data.ndim == 1:
+        data = numpy.atleast_2d(data)
+        data = data.transpose()
+
         self.paths.append("PCM")
         self.pcm_data.append(data)
         self.n_frames.append(data.shape[0])
