@@ -89,7 +89,6 @@ class AudioInterface(object):
         hardware_information = HardwareInformation(pya)
 
         available_devices = hardware_information.devices
-        #print(self.device_name)
         logger.debug("Audio Device '%s' was selected.", self.device_name)
         device = available_devices[self.device_name]
         self.device_idx = device['index']
