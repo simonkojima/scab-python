@@ -2,7 +2,8 @@ import numpy
 import time
 import os
 import wave
-import logging
+from logging import getLogger
+logger = getLogger('pyscab.'+__name__)
 
 class DataHandler(object):
     def __init__(self, frame_rate = 44100, verbose=False):
@@ -42,7 +43,7 @@ class DataHandler(object):
             start = time.time()
             print("start loading : " + f_name)
 
-        logging.debug("start loading : %s", path)
+        logger.debug("start loading : %s", path)
         data = numpy.zeros((nf, n_ch)).astype(dtype)
 
         data_wav = wf.readframes(nf)
@@ -96,8 +97,8 @@ class DataHandler(object):
             raise ValueError("Passed id " + str(id) + " is dumplicated.")
 
         if data.ndim == 1:
-        data = numpy.atleast_2d(data)
-        data = data.transpose()
+            data = numpy.atleast_2d(data)
+            data = data.transpose()
 
         self.paths.append("PCM")
         self.pcm_data.append(data)
