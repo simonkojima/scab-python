@@ -4,6 +4,7 @@ This package allows users to present auditory stimuli for brain-computer interfa
   
 # Install  
 You can install package from pypi by using pip.  
+Before you install pyscab, you may need to install PyAudio.  
 ```
 pip install pyscab
 ```
