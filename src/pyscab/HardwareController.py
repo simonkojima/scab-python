@@ -4,6 +4,16 @@ from logging import getLogger
 logger = getLogger('pyscab.'+__name__)
 
 class CallbackParams(object):
+    """
+    class for referencing parameters of callback function of portaudio.
+
+    Attributes
+    ----------
+    data : list of pyscab.ReadAudioChunk
+        containing audio data to play.
+    data_finished : list of bool
+        True if all audio data in attribute data which has corresponding index were played.
+    """
     def __init__(self):
         self.init()
     
@@ -35,6 +45,9 @@ def callback(in_data, frame_count, time_info, status, p=callback_params):
     return (numpy.ravel(data, order='C'), pyaudio.paContinue)
 
 def get_available_devices():
+    """
+    print available devices connected to the computer.
+    """
     pya = pyaudio.PyAudio()
     hi = HardwareInformation(pya)
     devices = hi.devices
@@ -43,6 +56,15 @@ def get_available_devices():
 
 
 class HardwareInformation(object):
+    """
+    get hardware information of audio devices.
+
+    Attributes
+    ----------
+    devices : dict
+        containes device name and maximum number of output channels of each device. 
+        keys : 'name', 'maxOutputChannels'
+    """
     def __init__(self, pya):
         self.devices = dict()
         n_devs = pya.get_device_count()
@@ -53,15 +75,70 @@ class HardwareInformation(object):
                 self.devices[name] = device
 
     def get_output_device_with_name(self, device_name):
+        """
+        get device information by name.
+
+        Parameters
+        ----------
+        device_name : str
+            name of the device.
+
+        Returns
+        -------
+        device : pyaudio.PaDeviceInfo
+        """
         return self.devices[device_name]
 
 class AudioInterface(object):
+    """
+    Class for handling Audio Interface device.
+
+    Attributes
+    ----------
+    device_name : str
+        name of the device to be opened.
+    format : str {'INT16', 'UINT8'}
+        format to be used for device.
+    frame_rate : int
+        frame rate of device.
+    frames_per_butter : int
+        frames per buffer
+    pya : instance of pyaudio.PyAudio()
+        instance of PyAudio device.
+    device_idx : int
+        device index of opened device.
+    num_cannels : int
+        number of channels to be opened.
+    n_ReadAudioChunk_obj : int
+        total number of ReadAudioChunk instance.
+
+    See Also
+    --------
+    Class ReadAudioChunk : used for reading audio data by chunk.
+    """
     def __init__(self,
                  device_name=None,
                  n_ch = 2,
                  format="INT16",
                  frame_rate=44100,
                  frames_per_buffer=512,):
+        """
+        set audio device to be used and its settings
+
+        Parameters
+        ----------
+        device_name : str, default=None
+            device name to be opened.
+            If it's None, 'default' will be used for Linux and 'ASIO4ALL' for Windows.
+        n_ch : int, default=2
+            number of channels to be opened
+        format : {'INT16', 'UINT8'}, default='INT16'
+            audio data fortmat to be played
+        frame_rate : int, default=44100
+            frame rate of audio device.
+        frames_per_butter : int, default=512
+            frames per butter of audio device. Which means chunk size of audio data read in callback function will be set to this value.
+        """
         if device_name is None:
             import platform
             if platform.system() == "Linux":
@@ -98,6 +175,9 @@ class AudioInterface(object):
 
 
     def open(self):
+        """
+        open audio device.
+        """
         callback_params.init()
         self.n_ReadAudioChunk_obj = 0
         callback_params.n_ch = self.num_channels
@@ -111,22 +191,89 @@ class AudioInterface(object):
                                     stream_callback=callback)
 
     def play(self, data, ch):
+        """
+        play audio data from specified channel.
+
+        Parameters
+        ----------
+        data : numpy.ndarray
+            audio data which have a shape of (number of samples, number of channels)
+        ch : list of int
+            channel number of audio device to be played (start from 1)
+
+        Examples
+        --------
+        In this case, audio_data will be played from 1st channel of audio device.
+
+        >>> play(audio_data, [1])
+        """
         callback_params.data.append(ReadAudioChunk(data, self.frames_per_buffer, ch, format = self.format_numpy, idx_obj = self.n_ReadAudioChunk_obj))
         callback_params.data_finished.append(False)
         self.n_ReadAudioChunk_obj += 1 # should be add 1 after executing appending ReadAudioChunk obj.
 
     def get_time_info(self):
+        """
+        get time information from portaudio (PaStreamCallbackTimeInfo)
+
+        Returns
+        -------
+        time_info : dict
+        """
         return callback_params.time
 
     def close(self):
+        """
+        stop audio stream and close device.
+        """
         self.stream.stop_stream()
         self.stream.close()
 
     def terminate(self):
+        """
+        terminate portaudio.
+        """
         self.pya.terminate()
 
 class ReadAudioChunk(object):
+    """
+    reading audio data by chunk.
+
+    Attributes
+    ----------
+    data : numpy.ndarray
+        audio data.
+    n_ch_data : int
+        number of channels of audio data
+    n_frames : int
+        number of frames of audio data
+    chunk_sixe : int
+        chunk size.
+    ch : list of int
+        channel number of device which audio data will be played.
+    format : numpy.dtype
+        audio data format
+    finished : Bool
+        If True, all audio data have already been read. If False, there's remained data.
+    idx_obj : int
+        id of instance.
+    """
     def __init__(self, data, chunk_size, ch, volume=1.0, format = numpy.dtype("int16"), idx_obj = None):
+        """
+        load data with specified settings
+
+        Parameteres
+        ----------
+        data : numpy.ndarray
+            audio data.
+        chunk_sixe : int
+            chunk size.
+        ch : list of int
+            channel number of device which audio data will be played.
+        format : numpy.dtype, default=numpy.dtype('int16')
+            audio data format
+        idx_obj : int, default=None
+            id of instance.
+        """
         self.data = data.astype(format)
         self.n_ch_data = data.shape[1] # n_ch of data
         self.n_frames = data.shape[0]
@@ -136,7 +283,7 @@ class ReadAudioChunk(object):
         self.format = format
         #self.remained_frames = self.n_frames
         self.finished = False
-        self.idx_obj = idx_obj
+        self.idx_obj = idx_obj # will be change to id
 
         # if mono audio will be played from multiple channel,
         # concatenate it to multiple channel matrix
@@ -146,25 +293,34 @@ class ReadAudioChunk(object):
             self.n_ch_data = self.data.shape[1]
 
     def read_chunk(self):
+        """
+        read audio data by chunk.
+
+        Returns
+        -------
+        chunk_data : numpy.ndarray
+            chunk data which have a shape of (chunk size, number of channels)
+        """
+
         start = self.current_idx*self.chunk_size
         end = (self.current_idx*self.chunk_size)+self.chunk_size
 
         if end >= (self.n_frames-1):
             data = numpy.zeros((self.chunk_size, self.n_ch_data), dtype=self.format)
             data[0:(self.n_frames-start-1),:] = self.data[start:-1,:]
-            """
-            =====================
-            This is old method.
             
-            deleted in ver 0.0.6 since it is slow.
-            =====================
+            #=====================
+            #This is old method.
+            #
+            #deleted in ver 0.0.6 since it is slow.
+            #=====================
             # padding zero to last block 
-            data = self.data[start:-1,:]
-            n_padding = self.chunk_size - data.shape[0]
-            data = numpy.vstack((data, numpy.zeros((n_padding, self.n_ch_data), dtype=self.format)))
+            #data = self.data[start:-1,:]
+            #n_padding = self.chunk_size - data.shape[0]
+            #data = numpy.vstack((data, numpy.zeros((n_padding, self.n_ch_data), dtype=self.format)))
             #data = numpy.vstack((data, numpy.zeros((n_padding, self.n_ch_data))))
-            """
             #self.finished = True
+            #=====================
             callback_params.data_finished[self.idx_obj] = True
         else:
             data = self.data[start:end,:]
@@ -173,7 +329,23 @@ class ReadAudioChunk(object):
         return data
 
     def is_finished(self):
+        """
+        check if it's finished
+
+        Returns
+        -------
+        is_finished : bool
+            True if all data already been read, False if there's remained data.
+        """
         return self.finished
 
     def get_ch(self):
+        """
+        get channel number to play the audio data.
+
+        Returns
+        -------
+        channel : list of int
+            channel number which audio data will be played.
+        """
         return self.ch

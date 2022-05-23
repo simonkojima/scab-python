@@ -10,8 +10,10 @@ documentation of pyscab
    :maxdepth: 2
    :caption: Contents:
    :numbered:
-   
+
+   pyscab   
    info/latency_test
+
 
 Indices and tables
 ==================
