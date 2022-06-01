@@ -10,7 +10,7 @@ Welcome to pyscab's documentation!
    :maxdepth: 2
    :caption: Contents:
    
-   modules
+   pyscab
 
 Indices and tables
 ==================

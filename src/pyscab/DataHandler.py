@@ -9,6 +9,13 @@ class DataHandler(object):
     """
     Handling wav files and pcm data.
 
+    Parameters
+    ----------
+    frame_rate : int, default=44100
+        frame rate of data.
+    verbose : bool, default=False
+        verbosity while data loading.
+
     Attributes
     ----------
     pcm_data : list
@@ -28,18 +35,10 @@ class DataHandler(object):
     sample width : list of int
         sample width in byte of loaded audio data.
     dtype : numpy.dtype
-        data format type.    
+        data format type.
+    """   
 
-    """
     def __init__(self, frame_rate = 44100, verbose=False):
-        """
-        Parameters
-        ----------
-        frame_rate : int, default=44100
-            frame rate of data.
-        verbose : bool, default=False
-            verbosity while data loading.
-        """
         self.pcm_data = list()
         self.n_ch = list()
         self.n_frames = list()

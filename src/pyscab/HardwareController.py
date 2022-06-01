@@ -18,6 +18,9 @@ class CallbackParams(object):
         self.init()
     
     def init(self):
+        """
+        initialize all parameters hold by CallbackParams instance.
+        """
         self.data = list()
         self.data_finished = list()
         self.format = None
