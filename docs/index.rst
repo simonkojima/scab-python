@@ -28,3 +28,11 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+Author
+======
+
+- **Simon Kojima**
+
+| Guest Researher at Donder Institute, Radboud University, Nijmegen, Netherlands
+| Ph.D. Candidate at Shibaura Institute of Technology, Tokyo, Japan
