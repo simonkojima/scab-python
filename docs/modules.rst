@@ -1,5 +1,5 @@
-src
-===
+pyscab
+======
 
 .. toctree::
    :maxdepth: 4

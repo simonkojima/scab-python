@@ -1,19 +1,16 @@
 .. pyscab documentation master file, created by
-   sphinx-quickstart on Tue May  3 13:39:18 2022.
+   sphinx-quickstart on Wed Jun  1 21:01:05 2022.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-documentation of pyscab
+Welcome to pyscab's documentation!
 ==================================
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-   :numbered:
-
-   pyscab   
-   info/latency_test
-
+   
+   modules
 
 Indices and tables
 ==================
