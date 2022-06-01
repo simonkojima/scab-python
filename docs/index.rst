@@ -10,7 +10,17 @@ Welcome to pyscab's documentation!
    :maxdepth: 2
    :caption: Contents:
    
-   pyscab
+   DataHandler
+   HardwareController
+   StimulationController
+   utils
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Misc:
+
+   misc/latency_test
+
 
 Indices and tables
 ==================
