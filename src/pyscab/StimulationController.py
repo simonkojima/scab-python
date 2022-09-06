@@ -12,10 +12,10 @@ def get_required_time(plans, data):
 
 class StimulationController(object):
 
-    def __init__(self, AudioHardwareController, marker_send, time_tick = 0.0001):
+    def __init__(self, AudioHardwareController, marker_send, time_tick = 0.0001, running=False):
         self.ahc = AudioHardwareController
         self.time_tick = time_tick
-        self.running = False
+        self.running = running
         self.marker_send = marker_send
         logger.debug("time_tick for Stimulation Controller was set to %s", str(self.time_tick))
 
@@ -33,7 +33,11 @@ class StimulationController(object):
         
         logger.debug("session time was set to %s." ,str(time_termination))
 
-        self.running = True
+        if 'multiprocessing' in str(type(self.running)):
+            self.running.value = True
+        else:
+            self.running = True
+        running_value = True
         self.ahc.open()
         logger.debug("Audio Hardware Controller Opening.")
 
@@ -42,7 +46,7 @@ class StimulationController(object):
         time.sleep(1)        
 
         start = self.ahc.get_time_info()['current_time']
-        while self.running is True:
+        while running_value is True or running_value == 1:
             now = self.ahc.get_time_info()['current_time'] - start
             for idx, plan in enumerate(plans):
                 if now > plan[0]:
@@ -55,7 +59,14 @@ class StimulationController(object):
                 del_idxs=list()
             time.sleep(self.time_tick)
             if now > time_termination:
-                self.running = False
+                if 'multiprocessing' in str(type(self.running)):
+                    self.running.value = False
+                else:
+                    self.running = False
+            if 'multiprocessing' in str(type(self.running)):
+                running_value = self.running.value
+            else:
+                running_value = self.running
 
         time.sleep(pause)
         self.ahc.close()
