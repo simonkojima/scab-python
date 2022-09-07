@@ -45,12 +45,12 @@ class StimulationController(object):
     def play(self, plans, data, time_termination = 'auto', pause=0.5):
         if self.mode == 'serial':
             self.play_serial(plans, data, time_termination, pause)
-        elif self.mode == 'pararell':
-            self.play_pararell(plans, data, time_termination, pause)
+        elif self.mode == 'parallel':
+            self.play_parallel(plans, data, time_termination, pause)
         else:
             raise ValueError("Unknown mode for pyscab.StimulationController : %s" %self.mode)
 
-    def play_pararell(self, plans, data, time_termination, pause):
+    def play_parallel(self, plans, data, time_termination, pause):
         """
         pararell version of play function.
         type of variable 'status' is instance multiprocessing.Value.

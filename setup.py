@@ -15,11 +15,16 @@ def parse_requirements_file(fname):
             requirements.append(req)
     return requirements
 
-install_requires = parse_requirements_file('requirements.txt')
+#install_requires = parse_requirements_file("requirements.txt")
+
+install_requires=[
+    'pyaudio>=0.2.11',
+    'numpy>=1.15.4',
+]
 
 setuptools.setup(
     name="pyscab",
-    version="0.1.5",
+    version="0.1.6",
     author="Simon Kojima",
     author_email="simon.kojima@outlook.com",
     description="python implementation of scab (stimulation controller for auditory brain-computer interface)",
