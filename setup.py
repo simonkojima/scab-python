@@ -19,7 +19,7 @@ install_requires = parse_requirements_file('requirements.txt')
 
 setuptools.setup(
     name="pyscab",
-    version="0.1.4",
+    version="0.1.5",
     author="Simon Kojima",
     author_email="simon.kojima@outlook.com",
     description="python implementation of scab (stimulation controller for auditory brain-computer interface)",
