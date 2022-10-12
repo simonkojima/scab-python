@@ -12,7 +12,7 @@ def get_required_time(plans, data):
 
 class StimulationController(object):
 
-    def __init__(self, AudioHardwareController, marker_send, mode='serial', time_tick = 0.0001, share=0):
+    def __init__(self, AudioHardwareController, marker_send, mode='serial', time_tick = 0.0001, share=None):
         """
         class for playing stimulating plan.
 
@@ -43,9 +43,13 @@ class StimulationController(object):
         """
         self.ahc = AudioHardwareController
         self.time_tick = time_tick
-        self.share = share
         self.marker_send = marker_send
         self.mode = mode.lower()
+        if share is None:
+            if self.mode == 'serial':
+                share = 0
+            elif self.mode == 'parallel':
+                share = [m for m in range(8)]
         logger.debug("time_tick for Stimulation Controller was set to %s", str(self.time_tick))
 
     def play(self, plans, data, time_termination = 'auto', pause=0.5):

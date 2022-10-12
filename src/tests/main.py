@@ -1,7 +1,7 @@
 import pyscab
 
 file_dirs = list()
-file_dirs.append("./440Hz_stereo.wav")
+file_dirs.append("./tests/440Hz_stereo.wav")
 
 
 #------------------------------------------------
@@ -36,8 +36,8 @@ audio_plan.append([1.5, 2, [1,2], 2])
 #
 
 #DEVICE_NAME = 'X-AIR ASIO Driver'
-#DEVICE_NAME = 'ASIO4ALL v2'
-DEVICE_NAME = 'default'
+DEVICE_NAME = 'ASIO4ALL v2'
+#DEVICE_NAME = 'default'
 ahc = pyscab.AudioInterface(device_name = DEVICE_NAME, n_ch = 2, format="INT16", frames_per_buffer = 512)
 
 def marker_send(val):
@@ -46,4 +46,3 @@ def marker_send(val):
 
 stc = pyscab.StimulationController(ahc, marker_send=marker_send)
 stc.play(audio_plan, afh)
-stc.terminate()
