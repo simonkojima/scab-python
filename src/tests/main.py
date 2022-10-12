@@ -43,6 +43,9 @@ ahc = pyscab.AudioInterface(device_name = DEVICE_NAME, n_ch = 2, format="INT16",
 def marker_send(val):
     print("marker sent : " + str(val))
 
+from multiprocessing import Array
+share = Array('d', range(8))
+share = [0 for m in range(8)]
 
-stc = pyscab.StimulationController(ahc, marker_send=marker_send)
+stc = pyscab.StimulationController(ahc, marker_send=marker_send, share=share)
 stc.play(audio_plan, afh)

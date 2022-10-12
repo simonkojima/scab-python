@@ -49,15 +49,20 @@ def callback(in_data, frame_count, time_info, status, p=callback_params):
     p.time = time_info
     return (np.ravel(p.data_callback, order='C'), pyaudio.paContinue)
 
-def get_available_devices():
+def show_devices():
     """
     print available devices connected to the computer.
     """
     pya = pyaudio.PyAudio()
     hi = HardwareInformation(pya)
     devices = hi.devices
+    #print(devices)
     for device in devices:
-        print("name : '" + str(devices[device]['name']) + "', maxOutputChannels : " + str(devices[device]['maxOutputChannels']))
+        print("%s : " %(device) + str(devices[device]))
+        print("\n")
+        #pass
+        #print(device)
+        #print("name : '" + str(devices[device]['name']) + "', maxOutputChannels : " + str(devices[device]['maxOutputChannels']))
 
 
 class HardwareInformation(object):
