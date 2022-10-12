@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 import time
 import os
 import wave
@@ -34,7 +34,7 @@ class DataHandler(object):
         frame rate of data
     sample width : list of int
         sample width in byte of loaded audio data.
-    dtype : numpy.dtype
+    dtype : np.dtype
         data format type.
     """   
 
@@ -48,7 +48,7 @@ class DataHandler(object):
         self.frame_rate = frame_rate
         self.sample_width = list()
         self.verbose = verbose
-        self.dtype = numpy.dtype("int16")
+        self.dtype = np.dtype("int16")
 
     def load(self, id, path, volume=1.0):
         """
@@ -91,9 +91,9 @@ class DataHandler(object):
         # it should be set in __init__()
         sw = wf.getsampwidth()
         if sw == 1:
-            self.dtype = dtype = numpy.dtype("uint8")
+            self.dtype = dtype = np.dtype("uint8")
         elif sw == 2:
-            self.dtype = dtype = numpy.dtype("int16")
+            self.dtype = dtype = np.dtype("int16")
         else:
             raise ValueError("file must be Int16 or UInt8 PCM wave format")
 
@@ -104,10 +104,10 @@ class DataHandler(object):
             print("start loading : " + f_name)
 
         logger.debug("start loading : %s", path)
-        data = numpy.zeros((nf, n_ch)).astype(dtype)
+        data = np.zeros((nf, n_ch)).astype(dtype)
 
         data_wav = wf.readframes(nf)
-        data_wav = numpy.frombuffer(data_wav, dtype=dtype)
+        data_wav = np.frombuffer(data_wav, dtype=dtype)
         data_wav = data_wav * volume
         data_wav = data_wav.astype(dtype)
         for ch in range(n_ch):
@@ -145,20 +145,20 @@ class DataHandler(object):
         n_frames = self.get_nframes_by_id(id)
         fs = self.frame_rate
 
-        raise_ = numpy.arange(0, int(t_raise_fall*fs))
-        fall_ = numpy.arange(int(t_raise_fall*fs), 0, -1)
+        raise_ = np.arange(0, int(t_raise_fall*fs))
+        fall_ = np.arange(int(t_raise_fall*fs), 0, -1)
 
         raise_ = raise_ / max(raise_)
         fall_ = fall_ / max(fall_)
 
-        flat = numpy.ones((n_frames - numpy.size(raise_) - numpy.size(raise_)))
+        flat = np.ones((n_frames - np.size(raise_) - np.size(raise_)))
 
-        win_filter = numpy.concatenate([raise_, flat, fall_])
+        win_filter = np.concatenate([raise_, flat, fall_])
 
         idx = self._id2idx(id)
         n_ch = self.n_ch[idx]
 
-        win = numpy.zeros((numpy.size(win_filter), n_ch))
+        win = np.zeros((np.size(win_filter), n_ch))
         for m in range(n_ch):
             win[:, m] = win_filter
 
@@ -173,7 +173,7 @@ class DataHandler(object):
         ----------
         id : int
             id for this audio data.
-        data : numpy.ndarray
+        data : np.ndarray
             audio data. shoule have shape of (number of samples, number of channels)
 
         Notes
@@ -191,7 +191,7 @@ class DataHandler(object):
             raise ValueError("Passed id " + str(id) + " is dumplicated.")
 
         if data.ndim == 1:
-            data = numpy.atleast_2d(data)
+            data = np.atleast_2d(data)
             data = data.transpose()
 
         self.paths.append("PCM")
@@ -213,7 +213,7 @@ class DataHandler(object):
         number_of_frames : int
             number of frames of the audio data specified by id.
         """
-        return numpy.shape(self.get_data_by_id(id))[0]
+        return np.shape(self.get_data_by_id(id))[0]
 
     def get_length_by_id(self, id):
         """
@@ -243,7 +243,7 @@ class DataHandler(object):
 
         Returns
         -------
-        data : numpy.ndarray
+        data : np.ndarray
             audio data array specified by id.
         """
         idx = self._id2idx(id)
@@ -284,7 +284,7 @@ class DataHandler(object):
         return self.paths[idx]
 
     def _id2idx(self, id):
-        idx = numpy.where(numpy.array(self.id) == id)
+        idx = np.where(np.array(self.id) == id)
         if len(idx[0]) == 0:
             return None
             #raise ValueError("id does not exist.")
