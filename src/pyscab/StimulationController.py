@@ -27,13 +27,14 @@ class StimulationController(object):
             pause between each loop in play() function. In terms of real time, it should be reduced.
             However, it also caused intence compulational load.
         share : int or instance of multiprocessing[0] class
-            0 : stopped
-            1 : running
+            0 : before playing
+            1 : playing
+            2 : finish playing
             When mode is set to 'serial', type of share is Boolean.
             When mode is set to 'pararell', type of share is an instance of multiprocessing.Array class.
 
             share[0] is used for sharing runnin status.
-            When it's working in pararell mode, it will be stop playing immediate after share is changed to 0.
+            When it's working in pararell mode, it will be stop playing immediate after share is changed to other than 1.
             e.g., when you are presenting stimulus in online BCI application with dynamic stopping,
             you need to stop playing when it's triggered. In that case, you need to set mode to pararell and use share variable.
 
@@ -49,8 +50,10 @@ class StimulationController(object):
 
     def play(self, plans, data, time_termination = 'auto', pause=0.5):
         if self.mode == 'serial':
+            self.share = 0
             self.play_serial(plans, data, time_termination, pause)
         elif self.mode == 'parallel':
+            self.share[0] = 0
             self.play_parallel(plans, data, time_termination, pause)
         else:
             raise ValueError("Unknown mode for pyscab.StimulationController : %s" %self.mode)
@@ -96,7 +99,7 @@ class StimulationController(object):
                 del_idxs=list()
             time.sleep(self.time_tick)
             if now > time_termination:
-                self.share[0] = 0
+                self.share[0] = 2
 
         time.sleep(pause)
         self.ahc.close()
@@ -143,7 +146,7 @@ class StimulationController(object):
                 del_idxs=list()
             time.sleep(self.time_tick)
             if now > time_termination:
-                self.share = 0
+                self.share = 2
 
         time.sleep(pause)
         self.ahc.close()
