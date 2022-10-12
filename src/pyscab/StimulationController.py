@@ -1,4 +1,5 @@
 import time
+import threading
 from logging import getLogger
 logger = getLogger('pyscab.'+__name__)
 
@@ -12,7 +13,13 @@ def get_required_time(plans, data):
 
 class StimulationController(object):
 
-    def __init__(self, AudioHardwareController, marker_send, time_tick = 0.0001, share=None):
+    def __init__(self,
+                 AudioHardwareController,
+                 marker_send,
+                 correct_latency = True,
+                 correct_hardware_buffer = False,
+                 time_tick = 0.0001,
+                 share=None):
         """
         class for playing stimulating plan.
 
@@ -41,12 +48,31 @@ class StimulationController(object):
         """
         self.ahc = AudioHardwareController
         self.time_tick = time_tick
-        self.marker_send = marker_send
+        self.correct_latency = correct_latency
+        if self.correct_latency:
+            self.offset = self.ahc.frames_per_buffer/self.ahc.frame_rate
+            if correct_hardware_buffer is not False:
+                if correct_hardware_buffer is True:
+                    self.offset += self.ahc.device['defaultLowOutputLatency']
+                else:
+                    self.offset += correct_hardware_buffer/self.ahc.frame_rate
+            self.marker_send_hw = marker_send
+            self.marker_send = self.marker_send_offset
+        else:
+            self.marker_send = marker_send
         if share is None:
             self.share = [0 for m in range(8)]
         else:
             self.share = share
         logger.debug("time_tick for Stimulation Controller was set to %s", str(self.time_tick))
+
+    def marker_send_offset(self, val):
+        t = threading.Thread(target=self.marker_send_offset_thread, args=(val,))
+        t.start()
+
+    def marker_send_offset_thread(self, val):
+        time.sleep(self.offset)
+        self.marker_send_hw(val=val)
 
     def play(self, plans, data, time_termination = 'auto', pause=0.5):
 

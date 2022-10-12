@@ -177,8 +177,8 @@ class AudioInterface(object):
 
         available_devices = hardware_information.devices
         logger.debug("Audio Device '%s' was selected.", self.device_name)
-        device = available_devices[self.device_name]
-        self.device_idx = device['index']
+        self.device = available_devices[self.device_name]
+        self.device_idx = self.device['index']
         self.num_channels = n_ch
 
         self.n_ReadAudioChunk_obj = 0
