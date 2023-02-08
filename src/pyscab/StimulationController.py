@@ -66,6 +66,14 @@ class StimulationController(object):
             self.share = share
         logger.debug("time_tick for Stimulation Controller was set to %s", str(self.time_tick))
 
+    def open(self):
+        self.ahc.open()
+        logger.debug("Audio Hardware Controller Opened.")
+        
+    def close(self):
+        self.ahc.close()
+        logger.debug("Audio Hardware Controller Closed.")
+
     def marker_send_offset(self, val):
         t = threading.Thread(target=self.marker_send_offset_thread, args=(val,))
         t.start()
@@ -89,15 +97,13 @@ class StimulationController(object):
         
         logger.debug("session time was set to %s." ,str(time_termination))
 
-        self.share[0] = 1
-        self.ahc.open()
-        logger.debug("Audio Hardware Controller Opening.")
-
         # requires time to be opened. with out this line, time_info won't be get
         # TO DO : get the state of instance from pyaudio and wait until it's opened instead of waiting with sleep
         #time.sleep(1)
         while self.ahc.get_time_info() is None:
             time.sleep(0.01)
+
+        self.share[0] = 1
 
         start = self.ahc.get_time_info()['current_time']
         while self.share[0] == 1:
@@ -115,7 +121,4 @@ class StimulationController(object):
             time.sleep(self.time_tick)
             if now > time_termination:
                 self.share[0] = 2
-
         time.sleep(pause)
-        self.ahc.close()
-        logger.debug("Audio Hardware Controller Closing.")
